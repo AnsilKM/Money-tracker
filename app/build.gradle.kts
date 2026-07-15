@@ -25,7 +25,7 @@ android {
     buildTypes {
         debug {
             // Debug builds add (Dev) suffix so you can tell them apart on-device
-            resValue("string", "app_name", "Money Tracker (Dev)")
+            resValue("string", "app_name", "Money Tracker")
             applicationIdSuffix = ".debug"
             versionNameSuffix = "-debug"
         }
@@ -47,6 +47,14 @@ android {
     buildFeatures {
         compose = true
         resValues = true
+    }
+
+    (this as? com.android.build.gradle.AppExtension)?.applicationVariants?.all {
+        val variant = this
+        variant.outputs.all {
+            val output = this as? com.android.build.gradle.internal.api.BaseVariantOutputImpl
+            output?.outputFileName = "Money Tracker-${variant.name}-v${variant.versionName}.apk"
+        }
     }
 }
 
