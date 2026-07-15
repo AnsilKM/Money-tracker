@@ -148,6 +148,7 @@ fun CreditDetailsScreen(
     var cycleOffset by remember { mutableIntStateOf(0) }
     var dialogPrefilledDate by remember { mutableStateOf<Long?>(null) }
     var showDeleteConfirm by remember { mutableStateOf(false) }
+    var showDeleteTxConfirm by remember { mutableStateOf<CreditTransaction?>(null) }
 
     val context = LocalContext.current
 
@@ -693,7 +694,7 @@ fun CreditDetailsScreen(
                             items(displayItems) { item ->
                                 when (item) {
                                     is HistoryItem.TransactionItem -> {
-                                        CreditTransactionRow(tx = item.tx, accountType = acc.type, onDelete = { viewModel?.deleteTransaction(item.tx) })
+                                        CreditTransactionRow(tx = item.tx, accountType = acc.type, onDelete = { showDeleteTxConfirm = item.tx })
                                         HorizontalDivider(color = Color(0xFFEBE3D3), thickness = 1.dp)
                                     }
                                     is HistoryItem.MissedPaymentItem -> {
@@ -763,6 +764,56 @@ fun CreditDetailsScreen(
                     }
                 )
             }
+        }
+
+        showDeleteTxConfirm?.let { tx ->
+            AlertDialog(
+                onDismissRequest = { showDeleteTxConfirm = null },
+                containerColor = CardSurface,
+                shape = RoundedCornerShape(6.dp),
+                title = {
+                    Text(
+                        text = "Delete Transaction",
+                        fontFamily = Fraunces,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 18.sp,
+                        color = InkPrimary
+                    )
+                },
+                text = {
+                    Text(
+                        text = "Are you sure you want to delete this payment of ₹%,.2f?".format(tx.amount),
+                        fontFamily = IBMPlexSans,
+                        fontSize = 14.sp,
+                        color = InkPrimary.copy(alpha = 0.8f)
+                    )
+                },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            viewModel?.deleteTransaction(tx)
+                            showDeleteTxConfirm = null
+                        }
+                    ) {
+                        Text(
+                            text = "DELETE",
+                            fontFamily = IBMPlexSans,
+                            fontWeight = FontWeight.Bold,
+                            color = LedgerRed
+                        )
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showDeleteTxConfirm = null }) {
+                        Text(
+                            text = "CANCEL",
+                            fontFamily = IBMPlexSans,
+                            fontWeight = FontWeight.Bold,
+                            color = InkPrimary.copy(alpha = 0.6f)
+                        )
+                    }
+                }
+            )
         }
     }
 }
