@@ -31,7 +31,6 @@ import com.me.moneytracker.ui.theme.*
 import org.koin.androidx.compose.koinViewModel
 import java.util.Locale
 import java.util.Calendar
-import java.util.Date
 import java.text.SimpleDateFormat
 import kotlin.math.abs
 
@@ -374,7 +373,7 @@ fun CreditListScreen(
                                 0 -> {
                                     val txs = accountTransactions[account.id] ?: emptyList()
                                     val unpaidBill = if (account.billDayOfMonth != null) {
-                                        com.me.moneytracker.ui.credit.components.calculateUnpaidBill(account.billDayOfMonth, txs)
+                                        calculateUnpaidBill(account.billDayOfMonth, txs)
                                     } else 0.0
 
                                     CreditCardTemplateItem(
@@ -567,7 +566,7 @@ fun CreditListScreen(
 @androidx.compose.ui.tooling.preview.Preview(showBackground = true)
 @Composable
 fun CreditListScreenPreview() {
-    com.me.moneytracker.ui.theme.LedgerTheme {
+    LedgerTheme {
         CreditListScreen(
             onNavigateBack = {},
             onNavigateToDetails = {}

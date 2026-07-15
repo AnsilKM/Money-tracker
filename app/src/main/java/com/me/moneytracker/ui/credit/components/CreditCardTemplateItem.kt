@@ -22,8 +22,6 @@ import com.me.moneytracker.ui.theme.IBMPlexSans
 import com.me.moneytracker.ui.theme.LedgerTheme
 import androidx.compose.ui.tooling.preview.Preview
 import java.util.Calendar
-import java.util.Date
-import java.text.SimpleDateFormat
 import java.util.Locale
 import kotlin.math.abs
 
