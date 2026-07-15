@@ -48,12 +48,16 @@ android {
         compose = true
         resValues = true
     }
+}
 
-    (this as? com.android.build.gradle.AppExtension)?.applicationVariants?.all {
-        val variant = this
-        variant.outputs.all {
-            val output = this as? com.android.build.gradle.internal.api.BaseVariantOutputImpl
-            output?.outputFileName = "Money Tracker-${variant.name}-v${variant.versionName}.apk"
+androidComponents {
+    onVariants { variant ->
+        val appVariant = variant as? com.android.build.api.variant.ApplicationVariant
+        if (appVariant != null) {
+            appVariant.outputs.forEach { output ->
+                val version = output.versionName.orNull ?: "1.0.0"
+                output.outputFileName.set("Money Transfer-${appVariant.name}-v$version.apk")
+            }
         }
     }
 }
