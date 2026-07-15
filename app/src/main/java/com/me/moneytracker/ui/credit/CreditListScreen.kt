@@ -30,6 +30,9 @@ import com.me.moneytracker.ui.home.ruledBackground
 import com.me.moneytracker.ui.theme.*
 import org.koin.androidx.compose.koinViewModel
 import java.util.Locale
+import java.util.Calendar
+import java.util.Date
+import java.text.SimpleDateFormat
 import kotlin.math.abs
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -78,6 +81,7 @@ fun CreditListScreen(
 
     var showSettleDialogForAccount by remember { mutableStateOf<Pair<CreditAccount, Double>?>(null) }
     var showDeleteConfirmForAccount by remember { mutableStateOf<CreditAccount?>(null) }
+    var showPayBillDialogForAccount by remember { mutableStateOf<Pair<CreditAccount, Double>?>(null) }
 
     // Hoist animation state so both FAB and overlay can use it
     val menuProgress by animateFloatAsState(
@@ -367,10 +371,22 @@ fun CreditListScreen(
                         items(filteredAccounts) { account ->
                             val balance = balances[account.id] ?: 0.0
                             when (activeTab) {
-                                0 -> CreditCardTemplateItem(
-                                    account = account,
-                                    balance = balance,
-                                    onClick = { onNavigateToDetails(account.id) })
+                                0 -> {
+                                    val txs = accountTransactions[account.id] ?: emptyList()
+                                    val unpaidBill = if (account.billDayOfMonth != null) {
+                                        com.me.moneytracker.ui.credit.components.calculateUnpaidBill(account.billDayOfMonth, txs)
+                                    } else 0.0
+
+                                    CreditCardTemplateItem(
+                                        account = account,
+                                        balance = balance,
+                                        transactions = txs,
+                                        onClick = { onNavigateToDetails(account.id) },
+                                        onPayBill = if (unpaidBill > 0.0) {
+                                            { showPayBillDialogForAccount = Pair(account, unpaidBill) }
+                                        } else null
+                                    )
+                                }
 
                                 1 -> SinglePaymentTemplateItem(
                                     account = account,
@@ -516,6 +532,31 @@ fun CreditListScreen(
                     onConfirm = {
                         viewModel?.deleteAccount(account)
                         showDeleteConfirmForAccount = null
+                    }
+                )
+            }
+
+            showPayBillDialogForAccount?.let { (account, amount) ->
+                val currentCal = Calendar.getInstance()
+                val monthLabel = SimpleDateFormat("MMM yyyy", Locale.getDefault()).format(currentCal.time)
+                AddCreditTransactionDialog(
+                    type = "GIVEN",
+                    accountType = "CREDIT_CARD",
+                    prefilledAmount = amount,
+                    prefilledNote = "Card Bill Payment - $monthLabel",
+                    prefilledDateMillis = System.currentTimeMillis(),
+                    onDismiss = { showPayBillDialogForAccount = null },
+                    onConfirm = { payAmount, note, date ->
+                        viewModel?.addCreditTransaction(
+                            accountId = account.id,
+                            amount = payAmount,
+                            type = "GIVEN",
+                            note = note ?: "Card Bill Payment - $monthLabel",
+                            dateMillis = date,
+                            syncToLedger = false,
+                            categoryId = null
+                        )
+                        showPayBillDialogForAccount = null
                     }
                 )
             }

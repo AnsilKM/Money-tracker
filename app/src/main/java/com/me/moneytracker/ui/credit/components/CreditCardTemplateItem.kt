@@ -14,12 +14,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.me.moneytracker.data.CreditAccount
+import com.me.moneytracker.data.CreditTransaction
 import com.me.moneytracker.ui.theme.BrassDivider
 import com.me.moneytracker.ui.theme.Fraunces
 import com.me.moneytracker.ui.theme.IBMPlexMono
 import com.me.moneytracker.ui.theme.IBMPlexSans
 import com.me.moneytracker.ui.theme.LedgerTheme
 import androidx.compose.ui.tooling.preview.Preview
+import java.util.Calendar
+import java.util.Date
+import java.text.SimpleDateFormat
 import java.util.Locale
 import kotlin.math.abs
 
@@ -27,14 +31,25 @@ import kotlin.math.abs
 fun CreditCardTemplateItem(
     account: CreditAccount,
     balance: Double,
-    onClick: () -> Unit
+    transactions: List<CreditTransaction> = emptyList(),
+    onClick: () -> Unit,
+    onPayBill: (() -> Unit)? = null
 ) {
     val scheme = CardColorSchemes.getOrElse(account.colorScheme) { CardColorSchemes[0] }
+    
+    val unpaidBill = androidx.compose.runtime.remember(account, transactions) {
+        val billDay = account.billDayOfMonth
+        if (billDay != null) {
+            calculateUnpaidBill(billDay, transactions)
+        } else {
+            0.0
+        }
+    }
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 12.dp)
-            .aspectRatio(1.886f) // Card ratio
             .border(1.5.dp, BrassDivider, RoundedCornerShape(15.dp))
             .background(
                 brush = androidx.compose.ui.graphics.Brush.linearGradient(
@@ -134,6 +149,54 @@ fun CreditCardTemplateItem(
                     )
                 }
             }
+
+            if (unpaidBill > 0.0 && onPayBill != null) {
+                Spacer(modifier = Modifier.height(12.dp))
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(Color.White.copy(alpha = 0.15f), RoundedCornerShape(8.dp))
+                        .padding(horizontal = 12.dp, vertical = 6.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column {
+                        Text(
+                            text = "UNPAID STATEMENT BILL",
+                            fontFamily = IBMPlexSans,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 8.sp,
+                            color = Color.White.copy(alpha = 0.7f),
+                            letterSpacing = 0.5.sp
+                        )
+                        Text(
+                            text = String.format(Locale.getDefault(), "₹%,.2f", unpaidBill),
+                            fontFamily = IBMPlexMono,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 14.sp,
+                            color = Color(0xFFFF7675)
+                        )
+                    }
+
+                    androidx.compose.material3.Button(
+                        onClick = { onPayBill() },
+                        colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFF2ECC71)
+                        ),
+                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 2.dp),
+                        modifier = Modifier.height(26.dp),
+                        shape = RoundedCornerShape(4.dp)
+                    ) {
+                        Text(
+                            text = "PAY BILL",
+                            fontFamily = IBMPlexSans,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 9.sp,
+                            color = Color.White
+                        )
+                    }
+                }
+            }
         }
     }
 }
@@ -184,4 +247,55 @@ fun CreditCardTemplateItemPreview() {
             )
         }
     }
+}
+
+fun calculateUnpaidBill(
+    billDay: Int,
+    transactions: List<CreditTransaction>
+): Double {
+    val currentCal = Calendar.getInstance()
+    val todayDay = currentCal.get(Calendar.DAY_OF_MONTH)
+    
+    val latestBillCal = Calendar.getInstance().apply {
+        set(Calendar.DAY_OF_MONTH, billDay)
+        set(Calendar.HOUR_OF_DAY, 23)
+        set(Calendar.MINUTE, 59)
+        set(Calendar.SECOND, 59)
+        set(Calendar.MILLISECOND, 999)
+        if (todayDay < billDay) {
+            add(Calendar.MONTH, -1)
+        }
+    }
+    
+    val cycleStartCal = (latestBillCal.clone() as Calendar).apply {
+        add(Calendar.MONTH, -1)
+        add(Calendar.DAY_OF_MONTH, 1)
+        set(Calendar.HOUR_OF_DAY, 0)
+        set(Calendar.MINUTE, 0)
+        set(Calendar.SECOND, 0)
+        set(Calendar.MILLISECOND, 0)
+    }
+    
+    val startMillis = cycleStartCal.timeInMillis
+    val endMillis = latestBillCal.timeInMillis
+    
+    val cycleCharges = transactions
+        .filter { it.dateMillis in startMillis..endMillis }
+        .filter { it.type == "RECEIVED" }
+        .sumOf { it.amount }
+        
+    val cycleRepayments = transactions
+        .filter { it.dateMillis in startMillis..endMillis }
+        .filter { it.type == "GIVEN" }
+        .sumOf { it.amount }
+        
+    val statementBalance = maxOf(0.0, cycleCharges - cycleRepayments)
+    if (statementBalance <= 0.0) return 0.0
+    
+    val repaymentsAfterBill = transactions
+        .filter { it.dateMillis > endMillis }
+        .filter { it.type == "GIVEN" }
+        .sumOf { it.amount }
+        
+    return maxOf(0.0, statementBalance - repaymentsAfterBill)
 }

@@ -7,9 +7,25 @@
 /.idea/workspace.xml
 /.idea/navEditor.xml
 /.idea/assetWizardSettings.xml
+/.idea/shelf/
+/.idea/dictionaries/
 .DS_Store
 /build
 /captures
 .externalNativeBuild
 .cxx
 local.properties
+
+# Secrets & Private Keys
+*.jks
+*.keystore
+*.pepk
+secrets.properties
+gradle-local.properties
+google-services.json
+
+# Local SQLite databases / test exports
+*.db
+*.db-journal
+*.db-shm
+*.db-wal
