@@ -1,9 +1,9 @@
-package com.me.moneytracker.ui.reports
+package com.mee.moneytracker.ui.reports
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.me.moneytracker.data.ExpenseDao
-import com.me.moneytracker.data.ExpenseWithCategory
+import com.mee.moneytracker.data.ExpenseDao
+import com.mee.moneytracker.data.ExpenseWithCategory
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -188,6 +188,58 @@ class ReportsViewModel(private val expenseDao: ExpenseDao) : ViewModel() {
         initialValue = emptyList()
     )
 
+    private fun isPeriodInFuture(tab: Int, calendar: Calendar): Boolean {
+        val cal = calendar.clone() as Calendar
+        val startOfToday = Calendar.getInstance().apply {
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }.timeInMillis
+
+        return when (tab) {
+            0 -> { // Daily: start of that day is after today
+                cal.set(Calendar.HOUR_OF_DAY, 0)
+                cal.set(Calendar.MINUTE, 0)
+                cal.set(Calendar.SECOND, 0)
+                cal.set(Calendar.MILLISECOND, 0)
+                cal.timeInMillis > startOfToday
+            }
+            1 -> { // Weekly: start of that week is after today
+                val currentDayOfWeek = cal.get(Calendar.DAY_OF_WEEK)
+                val daysToSubtract = (currentDayOfWeek - Calendar.MONDAY + 7) % 7
+                cal.add(Calendar.DAY_OF_YEAR, -daysToSubtract)
+                cal.set(Calendar.HOUR_OF_DAY, 0)
+                cal.set(Calendar.MINUTE, 0)
+                cal.set(Calendar.SECOND, 0)
+                cal.set(Calendar.MILLISECOND, 0)
+                cal.timeInMillis > startOfToday
+            }
+            else -> { // Monthly: start of that month is after today
+                cal.set(Calendar.DAY_OF_MONTH, 1)
+                cal.set(Calendar.HOUR_OF_DAY, 0)
+                cal.set(Calendar.MINUTE, 0)
+                cal.set(Calendar.SECOND, 0)
+                cal.set(Calendar.MILLISECOND, 0)
+                cal.timeInMillis > startOfToday
+            }
+        }
+    }
+
+    val isNextPeriodEnabled: StateFlow<Boolean> = combine(tabIndex, currentDate) { tab, date ->
+        val cal = date.clone() as Calendar
+        when (tab) {
+            0 -> cal.add(Calendar.DAY_OF_YEAR, 1)
+            1 -> cal.add(Calendar.WEEK_OF_YEAR, 1)
+            2 -> cal.add(Calendar.MONTH, 1)
+        }
+        !isPeriodInFuture(tab, cal)
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = false
+    )
+
     fun navigatePeriod(direction: Int) { // -1: Previous, 1: Next
         val cal = currentDate.value.clone() as Calendar
         when (tabIndex.value) {
@@ -195,7 +247,9 @@ class ReportsViewModel(private val expenseDao: ExpenseDao) : ViewModel() {
             1 -> cal.add(Calendar.WEEK_OF_YEAR, direction)
             2 -> cal.add(Calendar.MONTH, direction)
         }
-        currentDate.value = cal
+        if (direction <= 0 || !isPeriodInFuture(tabIndex.value, cal)) {
+            currentDate.value = cal
+        }
     }
 
     fun selectDate(year: Int, month: Int, dayOfMonth: Int) {
@@ -203,7 +257,9 @@ class ReportsViewModel(private val expenseDao: ExpenseDao) : ViewModel() {
         cal.set(Calendar.YEAR, year)
         cal.set(Calendar.MONTH, month)
         cal.set(Calendar.DAY_OF_MONTH, dayOfMonth)
-        currentDate.value = cal
+        if (!isPeriodInFuture(tabIndex.value, cal)) {
+            currentDate.value = cal
+        }
     }
 
     fun setTab(index: Int) {

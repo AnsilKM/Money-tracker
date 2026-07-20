@@ -1,29 +1,60 @@
-package com.me.moneytracker.ui.credit.components
+package com.mee.moneytracker.ui.credit.components
 
 import android.app.DatePickerDialog
 import androidx.compose.foundation.background
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.me.moneytracker.data.CreditAccount
-import com.me.moneytracker.ui.theme.*
+import com.mee.moneytracker.data.CreditAccount
+import com.mee.moneytracker.ui.theme.BrassDivider
+import com.mee.moneytracker.ui.theme.CardSurface
+import com.mee.moneytracker.ui.theme.DeepForestIncome
+import com.mee.moneytracker.ui.theme.Fraunces
+import com.mee.moneytracker.ui.theme.IBMPlexMono
+import com.mee.moneytracker.ui.theme.IBMPlexSans
+import com.mee.moneytracker.ui.theme.InkPrimary
+import com.mee.moneytracker.ui.theme.LedgerRed
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -68,7 +99,9 @@ fun AddCreditCardDialog(
         },
         text = {
             Column(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 // Interactive Card Mockup Face
@@ -145,7 +178,10 @@ fun AddCreditCardDialog(
                     value = name,
                     onValueChange = { name = it },
                     label = { Text("Card Name (e.g. HDFC Millennia)") },
-                    keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words),
+                    keyboardOptions = KeyboardOptions(
+                        capitalization = KeyboardCapitalization.Words,
+                        imeAction = ImeAction.Next
+                    ),
                     modifier = Modifier.fillMaxWidth(),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = BrassDivider,
@@ -158,7 +194,10 @@ fun AddCreditCardDialog(
                     value = limitStr,
                     onValueChange = { limitStr = it },
                     label = { Text("Credit Limit (Optional)") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Number,
+                        imeAction = ImeAction.Next
+                    ),
                     modifier = Modifier.fillMaxWidth(),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = BrassDivider,
@@ -172,7 +211,10 @@ fun AddCreditCardDialog(
                     value = billDayStr,
                     onValueChange = { onDayChange(it) { billDayStr = it } },
                     label = { Text("Statement/Bill Day of Month (1-31)") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Number,
+                        imeAction = ImeAction.Next
+                    ),
                     modifier = Modifier.fillMaxWidth(),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = BrassDivider,
@@ -185,7 +227,10 @@ fun AddCreditCardDialog(
                     value = dueDayStr,
                     onValueChange = { onDayChange(it) { dueDayStr = it } },
                     label = { Text("Payment Due Day of Month (1-31)") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Number,
+                        imeAction = ImeAction.Done
+                    ),
                     modifier = Modifier.fillMaxWidth(),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = BrassDivider,
@@ -295,7 +340,9 @@ fun AddSinglePaymentDialog(
         },
         text = {
             Column(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 // Interactive Receipt Mockup
@@ -368,7 +415,10 @@ fun AddSinglePaymentDialog(
                     value = title,
                     onValueChange = { title = it },
                     label = { Text("Title / Person Name") },
-                    keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words),
+                    keyboardOptions = KeyboardOptions(
+                        capitalization = KeyboardCapitalization.Words,
+                        imeAction = ImeAction.Next
+                    ),
                     modifier = Modifier.fillMaxWidth(),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = BrassDivider,
@@ -381,7 +431,10 @@ fun AddSinglePaymentDialog(
                     value = amountStr,
                     onValueChange = { amountStr = it },
                     label = { Text("Initial Amount (₹)") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Number,
+                        imeAction = ImeAction.Next
+                    ),
                     modifier = Modifier.fillMaxWidth(),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = BrassDivider,
@@ -394,7 +447,10 @@ fun AddSinglePaymentDialog(
                     value = noteStr,
                     onValueChange = { noteStr = it },
                     label = { Text("Optional Note") },
-                    keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
+                    keyboardOptions = KeyboardOptions(
+                        capitalization = KeyboardCapitalization.Sentences,
+                        imeAction = ImeAction.Done
+                    ),
                     modifier = Modifier.fillMaxWidth(),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = BrassDivider,
@@ -493,7 +549,8 @@ fun AddSinglePaymentDialog(
             TextButton(
                 onClick = {
                     if (isValid) {
-                        onConfirm(title, amount!!, selectedDueDate, if (isLent) "LENT" else "BORROWED", noteStr.ifBlank { null })
+                        onConfirm(title,
+                            amount, selectedDueDate, if (isLent) "LENT" else "BORROWED", noteStr.ifBlank { null })
                     }
                 },
                 enabled = isValid
@@ -640,7 +697,10 @@ fun AddLoanDialog(
                         value = source,
                         onValueChange = { source = it },
                         label = { Text("Loan Source (e.g. SBI Bank, Car Loan)") },
-                        keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words),
+                        keyboardOptions = KeyboardOptions(
+                            capitalization = KeyboardCapitalization.Words,
+                            imeAction = ImeAction.Next
+                        ),
                         modifier = Modifier.fillMaxWidth(),
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = BrassDivider,
@@ -655,7 +715,10 @@ fun AddLoanDialog(
                         value = principalStr,
                         onValueChange = { principalStr = it },
                         label = { Text("Borrowed Principal Amount (₹)") },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Number,
+                            imeAction = ImeAction.Next
+                        ),
                         modifier = Modifier.fillMaxWidth(),
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = BrassDivider,
@@ -670,7 +733,10 @@ fun AddLoanDialog(
                         value = emiStr,
                         onValueChange = { emiStr = it },
                         label = { Text("Monthly EMI Amount") },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Number,
+                            imeAction = ImeAction.Next
+                        ),
                         modifier = Modifier.fillMaxWidth(),
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = BrassDivider,
@@ -685,7 +751,10 @@ fun AddLoanDialog(
                         value = tenureStr,
                         onValueChange = { tenureStr = it },
                         label = { Text("Loan Tenure in Months") },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Number,
+                            imeAction = ImeAction.Next
+                        ),
                         modifier = Modifier.fillMaxWidth(),
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = BrassDivider,
@@ -700,7 +769,10 @@ fun AddLoanDialog(
                         value = dueDayStr,
                         onValueChange = { onDayChange(it) { dueDayStr = it } },
                         label = { Text("Payment Due Day of Month (1-31)") },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Number,
+                            imeAction = ImeAction.Done
+                        ),
                         modifier = Modifier.fillMaxWidth(),
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = BrassDivider,
@@ -806,11 +878,11 @@ fun AddLoanDialog(
                 onClick = {
                     if (isEnabled) {
                         onConfirm(
-                            source, 
-                            principal!!, 
-                            dueDay, 
-                            emi!!, 
-                            tenure!!,
+                            source,
+                            principal,
+                            dueDay,
+                            emi,
+                            tenure,
                             selectedMonth,
                             selectedYear
                         )
@@ -943,7 +1015,10 @@ fun SettleSinglePaymentDialog(
                             }
                         },
                         label = { Text("Payment Amount (₹)") },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Number,
+                            imeAction = ImeAction.Done
+                        ),
                         modifier = Modifier.fillMaxWidth(),
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = BrassDivider,

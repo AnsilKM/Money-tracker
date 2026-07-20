@@ -1,4 +1,4 @@
-package com.me.moneytracker.reminder
+package com.mee.moneytracker.reminder
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -8,7 +8,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import androidx.core.app.NotificationCompat
-import com.me.moneytracker.MainActivity
+import com.mee.moneytracker.MainActivity
 
 class ReminderReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {

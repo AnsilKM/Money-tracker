@@ -1,4 +1,4 @@
-package com.me.moneytracker.ui.credit
+package com.mee.moneytracker.ui.credit
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -15,6 +15,13 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.ui.graphics.Color
@@ -24,10 +31,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.me.moneytracker.data.CreditAccount
-import com.me.moneytracker.ui.credit.components.*
-import com.me.moneytracker.ui.home.ruledBackground
-import com.me.moneytracker.ui.theme.*
+import com.mee.moneytracker.data.CreditAccount
+import com.mee.moneytracker.ui.credit.components.*
+import com.mee.moneytracker.ui.home.ruledBackground
+import com.mee.moneytracker.ui.theme.*
 import org.koin.androidx.compose.koinViewModel
 import java.util.Locale
 import java.util.Calendar
@@ -94,6 +101,31 @@ fun CreditListScreen(
         label = "MainFabRotation"
     )
 
+    val lazyListState = rememberLazyListState()
+    var isNavBarVisible by remember { mutableStateOf(true) }
+    var prevIndex by remember { mutableStateOf(0) }
+    var prevOffset by remember { mutableStateOf(0) }
+
+    LaunchedEffect(lazyListState.firstVisibleItemIndex, lazyListState.firstVisibleItemScrollOffset) {
+        val currentIndex = lazyListState.firstVisibleItemIndex
+        val currentOffset = lazyListState.firstVisibleItemScrollOffset
+        
+        if (currentIndex > prevIndex) {
+            isNavBarVisible = false
+        } else if (currentIndex < prevIndex) {
+            isNavBarVisible = true
+        } else {
+            if (currentOffset > prevOffset + 5) {
+                isNavBarVisible = false
+            } else if (currentOffset < prevOffset - 5) {
+                isNavBarVisible = true
+            }
+        }
+        
+        prevIndex = currentIndex
+        prevOffset = currentOffset
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -114,7 +146,9 @@ fun CreditListScreen(
         },
         floatingActionButton = {
             Box(
-                modifier = Modifier.size(200.dp),
+                modifier = Modifier
+                    .size(200.dp)
+                    .padding(bottom = 80.dp),
                 contentAlignment = Alignment.BottomEnd
             ) {
                 if (menuProgress > 0f) {
@@ -275,24 +309,17 @@ fun CreditListScreen(
                 }
             }
         },
-        bottomBar = {
-            com.me.moneytracker.ui.components.FloatingNavBar(
-                currentRoute = "credit_list",
-                onNavigate = { route ->
-                    when (route) {
-                        "home" -> onNavigateToHome()
-                        "reports" -> onNavigateToReports()
-                    }
-                }
-            )
-        },
         containerColor = PaperBackground
     ) { innerPadding ->
         Box(modifier = Modifier.fillMaxSize()) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(innerPadding)
+                    .padding(
+                        top = innerPadding.calculateTopPadding(),
+                        start = innerPadding.calculateStartPadding(LayoutDirection.Ltr),
+                        end = innerPadding.calculateEndPadding(LayoutDirection.Ltr)
+                    )
                     .ruledBackground(Color(0xFFF1EADB))
             ) {
                 // Custom vintage-style tab layout
@@ -361,11 +388,13 @@ fun CreditListScreen(
                     }
                 } else {
                     LazyColumn(
+                        state = lazyListState,
                         modifier = Modifier
                             .fillMaxWidth()
                             .weight(1f)
                             .padding(horizontal = 24.dp),
-                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                        verticalArrangement = Arrangement.spacedBy(4.dp),
+                        contentPadding = PaddingValues(bottom = 100.dp)
                     ) {
                         items(filteredAccounts) { account ->
                             val balance = balances[account.id] ?: 0.0
@@ -404,9 +433,7 @@ fun CreditListScreen(
                                     onClick = { onNavigateToDetails(account.id) })
                             }
                         }
-                        item {
-                            Spacer(modifier = Modifier.height(80.dp))
-                        }
+                        // Bottom space is covered by LazyColumn contentPadding
                     }
                 }
 
@@ -556,6 +583,23 @@ fun CreditListScreen(
                             categoryId = null
                         )
                         showPayBillDialogForAccount = null
+                    }
+                )
+            }
+
+            AnimatedVisibility(
+                visible = isNavBarVisible,
+                enter = slideInVertically(initialOffsetY = { it }) + fadeIn(),
+                exit = slideOutVertically(targetOffsetY = { it }) + fadeOut(),
+                modifier = Modifier.align(Alignment.BottomCenter)
+            ) {
+                com.mee.moneytracker.ui.components.FloatingNavBar(
+                    currentRoute = "credit_list",
+                    onNavigate = { route ->
+                        when (route) {
+                            "home" -> onNavigateToHome()
+                            "reports" -> onNavigateToReports()
+                        }
                     }
                 )
             }

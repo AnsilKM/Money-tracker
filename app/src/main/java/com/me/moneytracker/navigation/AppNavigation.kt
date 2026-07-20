@@ -1,4 +1,4 @@
-package com.me.moneytracker.navigation
+package com.mee.moneytracker.navigation
 
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -12,12 +12,12 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.me.moneytracker.ui.addexpense.AddExpenseScreen
-import com.me.moneytracker.ui.home.HomeScreen
-import com.me.moneytracker.ui.reports.ReportsScreen
-import com.me.moneytracker.ui.splash.SplashScreen
-import com.me.moneytracker.ui.credit.CreditListScreen
-import com.me.moneytracker.ui.credit.CreditDetailsScreen
+import com.mee.moneytracker.ui.addexpense.AddExpenseScreen
+import com.mee.moneytracker.ui.home.HomeScreen
+import com.mee.moneytracker.ui.reports.ReportsScreen
+import com.mee.moneytracker.ui.splash.SplashScreen
+import com.mee.moneytracker.ui.credit.CreditListScreen
+import com.mee.moneytracker.ui.credit.CreditDetailsScreen
 
 @Composable
 fun AppNavigation(
@@ -53,13 +53,21 @@ fun AppNavigation(
                         launchSingleTop = true
                     }
                 },
-                onAddExpenseClick = {
-                    navController.navigate("add_expense")
+                onAddExpenseClick = { dateMillis ->
+                    navController.navigate("add_expense?date=$dateMillis")
                 }
             )
         }
-        composable("add_expense") {
+        composable(
+            route = "add_expense?date={dateMillis}",
+            arguments = listOf(navArgument("dateMillis") {
+                type = NavType.LongType
+                defaultValue = -1L
+            })
+        ) { backStackEntry ->
+            val dateMillis = backStackEntry.arguments?.getLong("dateMillis") ?: -1L
             AddExpenseScreen(
+                initialDateMillis = if (dateMillis != -1L) dateMillis else System.currentTimeMillis(),
                 onNavigateBack = {
                     navController.popBackStack()
                 }

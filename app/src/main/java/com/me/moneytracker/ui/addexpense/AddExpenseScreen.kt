@@ -1,4 +1,4 @@
-package com.me.moneytracker.ui.addexpense
+package com.mee.moneytracker.ui.addexpense
 
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
@@ -21,10 +21,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -62,18 +64,18 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.me.moneytracker.data.Category
-import com.me.moneytracker.ui.home.ruledBackground
-import com.me.moneytracker.ui.theme.AmountLarge
-import com.me.moneytracker.ui.theme.BrassDivider
-import com.me.moneytracker.ui.theme.CardSurface
-import com.me.moneytracker.ui.theme.Fraunces
-import com.me.moneytracker.ui.theme.IBMPlexMono
-import com.me.moneytracker.ui.theme.IBMPlexSans
-import com.me.moneytracker.ui.theme.InkPrimary
-import com.me.moneytracker.ui.theme.LedgerRed
-import com.me.moneytracker.ui.theme.PaperBackground
-import com.me.moneytracker.ui.theme.DeepForestIncome
+import com.mee.moneytracker.data.Category
+import com.mee.moneytracker.ui.home.ruledBackground
+import com.mee.moneytracker.ui.theme.AmountLarge
+import com.mee.moneytracker.ui.theme.BrassDivider
+import com.mee.moneytracker.ui.theme.CardSurface
+import com.mee.moneytracker.ui.theme.Fraunces
+import com.mee.moneytracker.ui.theme.IBMPlexMono
+import com.mee.moneytracker.ui.theme.IBMPlexSans
+import com.mee.moneytracker.ui.theme.InkPrimary
+import com.mee.moneytracker.ui.theme.LedgerRed
+import com.mee.moneytracker.ui.theme.PaperBackground
+import com.mee.moneytracker.ui.theme.DeepForestIncome
 import org.koin.androidx.compose.koinViewModel
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -82,6 +84,7 @@ import java.util.Locale
 
 @Composable
 fun AddExpenseScreen(
+    initialDateMillis: Long = System.currentTimeMillis(),
     onNavigateBack: () -> Unit,
     viewModel: AddExpenseViewModel = koinViewModel()
 ) {
@@ -91,6 +94,7 @@ fun AddExpenseScreen(
     AddExpenseContent(
         expenseCategories = expenseCategories,
         incomeCategories = incomeCategories,
+        initialDateMillis = initialDateMillis,
         onNavigateBack = onNavigateBack,
         onAddExpense = { amount, categoryId, dateMillis, note, isIncome ->
             viewModel.addExpense(amount, categoryId, dateMillis, note, isIncome, onNavigateBack)
@@ -106,6 +110,7 @@ fun AddExpenseScreen(
 fun AddExpenseContent(
     expenseCategories: List<Category>,
     incomeCategories: List<Category>,
+    initialDateMillis: Long = System.currentTimeMillis(),
     onNavigateBack: () -> Unit,
     onAddExpense: (Double, Long, Long, String?, Boolean) -> Unit,
     onAddCustomCategory: (String, Boolean, (Category) -> Unit) -> Unit
@@ -115,7 +120,7 @@ fun AddExpenseContent(
     var isIncome by remember { mutableStateOf(false) }
     var amountInput by remember { mutableStateOf("") }
     var selectedCategory by remember { mutableStateOf<Category?>(null) }
-    var selectedDate by remember { mutableStateOf(System.currentTimeMillis()) }
+    var selectedDate by remember { mutableStateOf(initialDateMillis) }
     var noteInput by remember { mutableStateOf("") }
 
     // Track time separately so we can display & merge it precisely
@@ -176,6 +181,7 @@ fun AddExpenseContent(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
+                .imePadding()
                 .ruledBackground(lineColor = Color(0xFFEBE3D3), spacing = 28.dp)
                 .verticalScroll(rememberScrollState())
                 .padding(24.dp)
@@ -357,7 +363,21 @@ fun AddExpenseContent(
                                 fontSize = 14.sp
                             )
                         },
-                        keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words),
+                        keyboardOptions = KeyboardOptions(
+                            capitalization = KeyboardCapitalization.Words,
+                            imeAction = ImeAction.Done
+                        ),
+                        keyboardActions = KeyboardActions(
+                            onDone = {
+                                if (customCategoryName.isNotBlank()) {
+                                    onAddCustomCategory(customCategoryName, isIncome) { newCat ->
+                                        selectedCategory = newCat
+                                        customCategoryName = ""
+                                        isAddingCustomCategory = false
+                                    }
+                                }
+                            }
+                        ),
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = BrassDivider,
                             unfocusedBorderColor = BrassDivider.copy(alpha = 0.5f),
@@ -531,7 +551,10 @@ fun AddExpenseContent(
                         color = InkPrimary.copy(alpha = 0.4f)
                     )
                 },
-                keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
+                keyboardOptions = KeyboardOptions(
+                    capitalization = KeyboardCapitalization.Sentences,
+                    imeAction = ImeAction.Done
+                ),
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = BrassDivider,
                     unfocusedBorderColor = BrassDivider.copy(alpha = 0.5f),
@@ -598,7 +621,7 @@ fun AddExpenseScreenPreview() {
         Category(id = 3, name = "Salary", isDefault = true, isIncome = true),
         Category(id = 4, name = "Business", isDefault = true, isIncome = true)
     )
-    com.me.moneytracker.ui.theme.LedgerTheme {
+    com.mee.moneytracker.ui.theme.LedgerTheme {
         AddExpenseContent(
             expenseCategories = mockExpenseCategories,
             incomeCategories = mockIncomeCategories,

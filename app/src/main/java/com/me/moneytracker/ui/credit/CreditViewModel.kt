@@ -1,14 +1,14 @@
-package com.me.moneytracker.ui.credit
+package com.mee.moneytracker.ui.credit
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.me.moneytracker.data.Category
-import com.me.moneytracker.data.CategoryDao
-import com.me.moneytracker.data.CreditAccount
-import com.me.moneytracker.data.CreditDao
-import com.me.moneytracker.data.CreditTransaction
-import com.me.moneytracker.data.Expense
-import com.me.moneytracker.data.ExpenseDao
+import com.mee.moneytracker.data.Category
+import com.mee.moneytracker.data.CategoryDao
+import com.mee.moneytracker.data.CreditAccount
+import com.mee.moneytracker.data.CreditDao
+import com.mee.moneytracker.data.CreditTransaction
+import com.mee.moneytracker.data.Expense
+import com.mee.moneytracker.data.ExpenseDao
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -19,7 +19,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import android.content.Context
-import com.me.moneytracker.reminder.ReminderManager
+import com.mee.moneytracker.reminder.ReminderManager
 
 class CreditViewModel(
     private val creditDao: CreditDao,

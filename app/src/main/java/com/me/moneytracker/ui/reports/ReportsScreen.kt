@@ -1,4 +1,4 @@
-package com.me.moneytracker.ui.reports
+package com.mee.moneytracker.ui.reports
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -13,10 +13,19 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
@@ -31,9 +40,11 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
@@ -43,18 +54,18 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.me.moneytracker.ui.home.ruledBackground
-import com.me.moneytracker.ui.theme.AmountLarge
-import com.me.moneytracker.ui.theme.AmountMedium
-import com.me.moneytracker.ui.theme.BrassDivider
-import com.me.moneytracker.ui.theme.CardSurface
-import com.me.moneytracker.ui.theme.Fraunces
-import com.me.moneytracker.ui.theme.IBMPlexMono
-import com.me.moneytracker.ui.theme.IBMPlexSans
-import com.me.moneytracker.ui.theme.InkPrimary
-import com.me.moneytracker.ui.theme.LedgerRed
-import com.me.moneytracker.ui.theme.DeepForestIncome
-import com.me.moneytracker.ui.theme.PaperBackground
+import com.mee.moneytracker.ui.home.ruledBackground
+import com.mee.moneytracker.ui.theme.AmountLarge
+import com.mee.moneytracker.ui.theme.AmountMedium
+import com.mee.moneytracker.ui.theme.BrassDivider
+import com.mee.moneytracker.ui.theme.CardSurface
+import com.mee.moneytracker.ui.theme.Fraunces
+import com.mee.moneytracker.ui.theme.IBMPlexMono
+import com.mee.moneytracker.ui.theme.IBMPlexSans
+import com.mee.moneytracker.ui.theme.InkPrimary
+import com.mee.moneytracker.ui.theme.LedgerRed
+import com.mee.moneytracker.ui.theme.DeepForestIncome
+import com.mee.moneytracker.ui.theme.PaperBackground
 import androidx.compose.foundation.Canvas
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
@@ -62,11 +73,12 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalDensity
 import org.koin.androidx.compose.koinViewModel
 import java.util.Locale
-import com.me.moneytracker.data.ExpenseWithCategory
+import com.mee.moneytracker.data.ExpenseWithCategory
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Calendar
 import android.app.DatePickerDialog
+import android.os.Build
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.TextButton
@@ -89,6 +101,7 @@ fun ReportsScreen(
     val weeklyDailyTotals by viewModel.weeklyDailyTotals.collectAsState()
     val monthlyWeeklyTotals by viewModel.monthlyWeeklyTotals.collectAsState()
     val showIncome by viewModel.showIncome.collectAsState()
+    val isNextPeriodEnabled by viewModel.isNextPeriodEnabled.collectAsState()
 
     ReportsContent(
         tabIndex = tabIndex,
@@ -100,6 +113,7 @@ fun ReportsScreen(
         weeklyDailyTotals = weeklyDailyTotals,
         monthlyWeeklyTotals = monthlyWeeklyTotals,
         showIncome = showIncome,
+        isNextPeriodEnabled = isNextPeriodEnabled,
         onTabSelected = { viewModel.setTab(it) },
         onNavigatePeriod = { viewModel.navigatePeriod(it) },
         onSelectDate = { year, month, day -> viewModel.selectDate(year, month, day) },
@@ -124,6 +138,7 @@ fun ReportsContent(
     weeklyDailyTotals: List<DailyTotal>,
     monthlyWeeklyTotals: List<WeeklyTotal>,
     showIncome: Boolean,
+    isNextPeriodEnabled: Boolean = true,
     onTabSelected: (Int) -> Unit,
     onNavigatePeriod: (Int) -> Unit,
     onSelectDate: (Int, Int, Int) -> Unit,
@@ -138,6 +153,31 @@ fun ReportsContent(
     val accentColor = if (showIncome) DeepForestIncome else LedgerRed
     val totalLabel = if (showIncome) "TOTAL INCOME" else "TOTAL SPEND"
     var showMonthPicker by remember { mutableStateOf(false) }
+
+    val lazyListState = rememberLazyListState()
+    var isNavBarVisible by remember { mutableStateOf(true) }
+    var prevIndex by remember { mutableStateOf(0) }
+    var prevOffset by remember { mutableStateOf(0) }
+
+    LaunchedEffect(lazyListState.firstVisibleItemIndex, lazyListState.firstVisibleItemScrollOffset) {
+        val currentIndex = lazyListState.firstVisibleItemIndex
+        val currentOffset = lazyListState.firstVisibleItemScrollOffset
+        
+        if (currentIndex > prevIndex) {
+            isNavBarVisible = false
+        } else if (currentIndex < prevIndex) {
+            isNavBarVisible = true
+        } else {
+            if (currentOffset > prevOffset + 5) {
+                isNavBarVisible = false
+            } else if (currentOffset < prevOffset - 5) {
+                isNavBarVisible = true
+            }
+        }
+        
+        prevIndex = currentIndex
+        prevOffset = currentOffset
+    }
 
     if (showMonthPicker) {
         MonthYearPickerDialog(
@@ -167,25 +207,19 @@ fun ReportsContent(
                 )
             )
         },
-        bottomBar = {
-            com.me.moneytracker.ui.components.FloatingNavBar(
-                currentRoute = "reports",
-                onNavigate = { route ->
-                    when (route) {
-                        "home" -> onNavigateToHome()
-                        "credit_list" -> onNavigateToCredits()
-                    }
-                }
-            )
-        },
         containerColor = PaperBackground
     ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .ruledBackground(lineColor = Color(0xFFEBE3D3), spacing = 28.dp)
-        ) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(
+                        top = innerPadding.calculateTopPadding(),
+                        start = innerPadding.calculateStartPadding(LayoutDirection.Ltr),
+                        end = innerPadding.calculateEndPadding(LayoutDirection.Ltr)
+                    )
+                    .ruledBackground(lineColor = Color(0xFFEBE3D3), spacing = 28.dp)
+            ) {
             // Custom bahi-khata styled tabs
             Row(
                 modifier = Modifier
@@ -295,7 +329,9 @@ fun ReportsContent(
                                         currentDate.get(Calendar.MONTH),
                                         currentDate.get(Calendar.DAY_OF_MONTH)
                                     )
-                                    dialog.datePicker.maxDate = System.currentTimeMillis()
+                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                                        dialog.datePicker.maxDate = System.currentTimeMillis()
+                                    }
                                     dialog.show()
                                 }
                             }
@@ -323,11 +359,14 @@ fun ReportsContent(
                     }
                 }
 
-                IconButton(onClick = { onNavigatePeriod(1) }) {
+                IconButton(
+                    onClick = { onNavigatePeriod(1) },
+                    enabled = isNextPeriodEnabled
+                ) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                         contentDescription = "Next Period",
-                        tint = InkPrimary
+                        tint = if (isNextPeriodEnabled) InkPrimary else InkPrimary.copy(alpha = 0.25f)
                     )
                 }
             }
@@ -376,10 +415,12 @@ fun ReportsContent(
                 }
             } else {
                 LazyColumn(
+                    state = lazyListState,
                     modifier = Modifier
                         .fillMaxWidth()
                         .weight(1f)
-                        .padding(horizontal = 24.dp)
+                        .padding(horizontal = 24.dp),
+                    contentPadding = PaddingValues(bottom = 100.dp)
                 ) {
                     // Item 1: Donut chart + legend
                     item {
@@ -485,7 +526,25 @@ fun ReportsContent(
                 }
             }
         }
+        
+        AnimatedVisibility(
+            visible = isNavBarVisible,
+            enter = slideInVertically(initialOffsetY = { it }) + fadeIn(),
+            exit = slideOutVertically(targetOffsetY = { it }) + fadeOut(),
+            modifier = Modifier.align(Alignment.BottomCenter)
+        ) {
+            com.mee.moneytracker.ui.components.FloatingNavBar(
+                currentRoute = "reports",
+                onNavigate = { route ->
+                    when (route) {
+                        "home" -> onNavigateToHome()
+                        "credit_list" -> onNavigateToCredits()
+                    }
+                }
+            )
+        }
     }
+}
 }
 
 // Chart palette — neutral distinct hues separate from LedgerRed / DeepForestIncome
@@ -1004,7 +1063,7 @@ fun ReportsScreenPreview() {
         CategoryBreakdown("Bills", 2500.0, 29.4f),
         CategoryBreakdown("Transport", 1500.0, 17.6f)
     )
-    com.me.moneytracker.ui.theme.LedgerTheme {
+    com.mee.moneytracker.ui.theme.LedgerTheme {
         ReportsContent(
             tabIndex = 0,
             dateLabel = "14 July 2026",

@@ -1,4 +1,4 @@
-package com.me.moneytracker.ui.home
+package com.mee.moneytracker.ui.home
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -14,13 +14,20 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
@@ -31,8 +38,18 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import android.app.DatePickerDialog
+import androidx.compose.ui.platform.LocalContext
+import java.util.Calendar
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -40,6 +57,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.TextButton
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -51,20 +69,20 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.me.moneytracker.data.Category
-import com.me.moneytracker.data.Expense
-import com.me.moneytracker.data.ExpenseWithCategory
-import com.me.moneytracker.ui.theme.AmountLarge
-import com.me.moneytracker.ui.theme.AmountMedium
-import com.me.moneytracker.ui.theme.BrassDivider
-import com.me.moneytracker.ui.theme.CardSurface
-import com.me.moneytracker.ui.theme.Fraunces
-import com.me.moneytracker.ui.theme.IBMPlexMono
-import com.me.moneytracker.ui.theme.IBMPlexSans
-import com.me.moneytracker.ui.theme.InkPrimary
-import com.me.moneytracker.ui.theme.LedgerRed
-import com.me.moneytracker.ui.theme.PaperBackground
-import com.me.moneytracker.ui.theme.DeepForestIncome
+import com.mee.moneytracker.data.Category
+import com.mee.moneytracker.data.Expense
+import com.mee.moneytracker.data.ExpenseWithCategory
+import com.mee.moneytracker.ui.theme.AmountLarge
+import com.mee.moneytracker.ui.theme.AmountMedium
+import com.mee.moneytracker.ui.theme.BrassDivider
+import com.mee.moneytracker.ui.theme.CardSurface
+import com.mee.moneytracker.ui.theme.Fraunces
+import com.mee.moneytracker.ui.theme.IBMPlexMono
+import com.mee.moneytracker.ui.theme.IBMPlexSans
+import com.mee.moneytracker.ui.theme.InkPrimary
+import com.mee.moneytracker.ui.theme.LedgerRed
+import com.mee.moneytracker.ui.theme.PaperBackground
+import com.mee.moneytracker.ui.theme.DeepForestIncome
 import org.koin.androidx.compose.koinViewModel
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -89,23 +107,28 @@ fun Modifier.ruledBackground(lineColor: Color, spacing: Dp = 26.dp): Modifier = 
 fun HomeScreen(
     onNavigateToReports: () -> Unit,
     onNavigateToCredits: () -> Unit,
-    onAddExpenseClick: () -> Unit,
+    onAddExpenseClick: (Long) -> Unit,
     viewModel: HomeViewModel = koinViewModel()
 ) {
     val expenses by viewModel.todayExpenses.collectAsState()
     val todayTotalIncome by viewModel.todayTotalIncome.collectAsState()
     val todayTotalExpense by viewModel.todayTotalExpense.collectAsState()
     val todayBalance by viewModel.todayBalance.collectAsState()
+    val currentDate by viewModel.currentDate.collectAsState()
 
     HomeContent(
         expenses = expenses,
         todayTotalIncome = todayTotalIncome,
         todayTotalExpense = todayTotalExpense,
         todayBalance = todayBalance,
+        currentDate = currentDate,
         onNavigateToReports = onNavigateToReports,
         onNavigateToCredits = onNavigateToCredits,
-        onAddExpenseClick = onAddExpenseClick,
-        onDeleteExpense = { viewModel.deleteExpense(it.expense) }
+        onAddExpenseClick = { onAddExpenseClick(currentDate.timeInMillis) },
+        onDeleteExpense = { viewModel.deleteExpense(it.expense) },
+        onPrevDay = { viewModel.moveToPreviousDay() },
+        onNextDay = { viewModel.moveToNextDay() },
+        onSelectDate = { year, month, day -> viewModel.selectDate(year, month, day) }
     )
 }
 
@@ -116,10 +139,14 @@ fun HomeContent(
     todayTotalIncome: Double,
     todayTotalExpense: Double,
     todayBalance: Double,
+    currentDate: Calendar,
     onNavigateToReports: () -> Unit,
     onNavigateToCredits: () -> Unit,
     onAddExpenseClick: () -> Unit,
-    onDeleteExpense: (ExpenseWithCategory) -> Unit
+    onDeleteExpense: (ExpenseWithCategory) -> Unit,
+    onPrevDay: () -> Unit,
+    onNextDay: () -> Unit,
+    onSelectDate: (Int, Int, Int) -> Unit
 ) {
     // 0 = All, 1 = Expense, 2 = Income
     var selectedTab by remember { mutableStateOf(0) }
@@ -130,6 +157,31 @@ fun HomeContent(
             2 -> expenses.filter { it.expense.isIncome }
             else -> expenses
         }
+    }
+
+    val lazyListState = rememberLazyListState()
+    var isNavBarVisible by remember { mutableStateOf(true) }
+    var prevIndex by remember { mutableStateOf(0) }
+    var prevOffset by remember { mutableStateOf(0) }
+
+    LaunchedEffect(lazyListState.firstVisibleItemIndex, lazyListState.firstVisibleItemScrollOffset) {
+        val currentIndex = lazyListState.firstVisibleItemIndex
+        val currentOffset = lazyListState.firstVisibleItemScrollOffset
+        
+        if (currentIndex > prevIndex) {
+            isNavBarVisible = false
+        } else if (currentIndex < prevIndex) {
+            isNavBarVisible = true
+        } else {
+            if (currentOffset > prevOffset + 5) {
+                isNavBarVisible = false
+            } else if (currentOffset < prevOffset - 5) {
+                isNavBarVisible = true
+            }
+        }
+        
+        prevIndex = currentIndex
+        prevOffset = currentOffset
     }
 
     Scaffold(
@@ -156,7 +208,7 @@ fun HomeContent(
                 containerColor = BrassDivider,
                 contentColor = PaperBackground,
                 shape = RoundedCornerShape(4.dp),
-                modifier = Modifier.padding(8.dp)
+                modifier = Modifier.padding(bottom = 80.dp, end = 8.dp)
             ) {
                 Icon(
                     imageVector = Icons.Default.Add,
@@ -164,25 +216,19 @@ fun HomeContent(
                 )
             }
         },
-        bottomBar = {
-            com.me.moneytracker.ui.components.FloatingNavBar(
-                currentRoute = "home",
-                onNavigate = { route ->
-                    when (route) {
-                        "credit_list" -> onNavigateToCredits()
-                        "reports" -> onNavigateToReports()
-                    }
-                }
-            )
-        },
         containerColor = PaperBackground
     ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .ruledBackground(lineColor = Color(0xFFEBE3D3), spacing = 28.dp)
-        ) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(
+                        top = innerPadding.calculateTopPadding(),
+                        start = innerPadding.calculateStartPadding(LayoutDirection.Ltr),
+                        end = innerPadding.calculateEndPadding(LayoutDirection.Ltr)
+                    )
+                    .ruledBackground(lineColor = Color(0xFFEBE3D3), spacing = 28.dp)
+            ) {
             // Prominent Net Book Balance area with Income / Expenses columns
             Column(
                 modifier = Modifier
@@ -244,16 +290,78 @@ fun HomeContent(
                     }
                 }
                 
-                Spacer(modifier = Modifier.height(10.dp))
-                val currentDateStr = SimpleDateFormat("dd MMMM yyyy", Locale.getDefault()).format(Date())
-                Text(
-                    text = currentDateStr,
-                    fontFamily = Fraunces,
-                    fontWeight = FontWeight.Medium,
-                    fontStyle = FontStyle.Italic,
-                    fontSize = 13.sp,
-                    color = BrassDivider
-                )
+                // Period Navigation (Prev / Next Arrows + Date Display)
+                val isToday = remember(currentDate) {
+                    val today = Calendar.getInstance()
+                    currentDate.get(Calendar.YEAR) == today.get(Calendar.YEAR) &&
+                    currentDate.get(Calendar.DAY_OF_YEAR) == today.get(Calendar.DAY_OF_YEAR)
+                }
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 12.dp, horizontal = 24.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    IconButton(onClick = onPrevDay) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
+                            contentDescription = "Previous Day",
+                            tint = InkPrimary
+                        )
+                    }
+
+                    val context = LocalContext.current
+                    Row(
+                        modifier = Modifier
+                            .weight(1f)
+                            .clickable {
+                                val dialog = DatePickerDialog(
+                                    context,
+                                    { _, year, month, dayOfMonth ->
+                                        onSelectDate(year, month, dayOfMonth)
+                                    },
+                                    currentDate.get(Calendar.YEAR),
+                                    currentDate.get(Calendar.MONTH),
+                                    currentDate.get(Calendar.DAY_OF_MONTH)
+                                )
+                                dialog.datePicker.maxDate = System.currentTimeMillis()
+                                dialog.show()
+                            },
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        val formattedDateStr = SimpleDateFormat("dd MMMM yyyy", Locale.getDefault()).format(currentDate.time)
+                        Text(
+                            text = formattedDateStr,
+                            fontFamily = Fraunces,
+                            fontWeight = FontWeight.Bold,
+                            fontStyle = FontStyle.Italic,
+                            fontSize = 18.sp,
+                            color = InkPrimary,
+                            textAlign = TextAlign.Center
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Icon(
+                            imageVector = Icons.Default.DateRange,
+                            contentDescription = "Select Specific Date",
+                            tint = BrassDivider,
+                            modifier = Modifier.size(16.dp)
+                        )
+                    }
+
+                    IconButton(
+                        onClick = onNextDay,
+                        enabled = !isToday
+                    ) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                            contentDescription = "Next Day",
+                            tint = if (isToday) InkPrimary.copy(alpha = 0.25f) else InkPrimary
+                        )
+                    }
+                }
             }
 
             // Divider separating Summary from Rule list
@@ -335,10 +443,12 @@ fun HomeContent(
                 }
             } else {
                 LazyColumn(
+                    state = lazyListState,
                     modifier = Modifier
                         .fillMaxWidth()
                         .weight(1f)
-                        .padding(vertical = 8.dp)
+                        .padding(vertical = 8.dp),
+                    contentPadding = PaddingValues(bottom = 100.dp)
                 ) {
                     items(filteredExpenses, key = { it.expense.id }) { item ->
                         ExpenseRowItem(
@@ -355,7 +465,25 @@ fun HomeContent(
                 }
             }
         }
+        
+        AnimatedVisibility(
+            visible = isNavBarVisible,
+            enter = slideInVertically(initialOffsetY = { it }) + fadeIn(),
+            exit = slideOutVertically(targetOffsetY = { it }) + fadeOut(),
+            modifier = Modifier.align(Alignment.BottomCenter)
+        ) {
+            com.mee.moneytracker.ui.components.FloatingNavBar(
+                currentRoute = "home",
+                onNavigate = { route ->
+                    when (route) {
+                        "credit_list" -> onNavigateToCredits()
+                        "reports" -> onNavigateToReports()
+                    }
+                }
+            )
+        }
     }
+}
 }
 
 @Composable
@@ -535,16 +663,20 @@ fun HomeScreenPreview() {
             category = mockCategories[2]
         )
     )
-    com.me.moneytracker.ui.theme.LedgerTheme {
+    com.mee.moneytracker.ui.theme.LedgerTheme {
         HomeContent(
             expenses = mockExpenses,
             todayTotalIncome = 5000.0,
             todayTotalExpense = 1850.0,
             todayBalance = 3150.0,
+            currentDate = Calendar.getInstance(),
             onNavigateToReports = {},
             onNavigateToCredits = {},
             onAddExpenseClick = {},
-            onDeleteExpense = {}
+            onDeleteExpense = {},
+            onPrevDay = {},
+            onNextDay = {},
+            onSelectDate = { _, _, _ -> }
         )
     }
 }
