@@ -1,4 +1,4 @@
-package com.mee.moneytracker.reminder
+package com.me.moneytracker.reminder
 
 import android.app.AlarmManager
 import android.app.PendingIntent

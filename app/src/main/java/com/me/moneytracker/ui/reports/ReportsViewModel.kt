@@ -1,9 +1,9 @@
-package com.mee.moneytracker.ui.reports
+package com.me.moneytracker.ui.reports
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.mee.moneytracker.data.ExpenseDao
-import com.mee.moneytracker.data.ExpenseWithCategory
+import com.me.moneytracker.data.ExpenseDao
+import com.me.moneytracker.data.ExpenseWithCategory
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted

@@ -1,4 +1,4 @@
-package com.mee.moneytracker.ui.credit.components
+package com.me.moneytracker.ui.credit.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -12,8 +12,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.mee.moneytracker.data.CreditAccount
-import com.mee.moneytracker.ui.theme.*
+import com.me.moneytracker.data.CreditAccount
+import com.me.moneytracker.ui.theme.*
 import java.util.Locale
 
 import androidx.compose.foundation.lazy.LazyRow
@@ -37,7 +37,7 @@ enum class EmiStatus {
 fun LoanTemplateItem(
     account: CreditAccount,
     balance: Double,
-    transactions: List<com.mee.moneytracker.data.CreditTransaction>,
+    transactions: List<com.me.moneytracker.data.CreditTransaction>,
     onClick: () -> Unit
 ) {
     val emiStartM = account.emiStartMonth

@@ -1,7 +1,7 @@
-package com.mee.moneytracker
+package com.me.moneytracker
 
 import android.app.Application
-import com.mee.moneytracker.di.appModule
+import com.me.moneytracker.di.appModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.GlobalContext.startKoin

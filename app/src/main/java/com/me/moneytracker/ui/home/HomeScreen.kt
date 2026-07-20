@@ -1,4 +1,4 @@
-package com.mee.moneytracker.ui.home
+package com.me.moneytracker.ui.home
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -69,20 +69,20 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.mee.moneytracker.data.Category
-import com.mee.moneytracker.data.Expense
-import com.mee.moneytracker.data.ExpenseWithCategory
-import com.mee.moneytracker.ui.theme.AmountLarge
-import com.mee.moneytracker.ui.theme.AmountMedium
-import com.mee.moneytracker.ui.theme.BrassDivider
-import com.mee.moneytracker.ui.theme.CardSurface
-import com.mee.moneytracker.ui.theme.Fraunces
-import com.mee.moneytracker.ui.theme.IBMPlexMono
-import com.mee.moneytracker.ui.theme.IBMPlexSans
-import com.mee.moneytracker.ui.theme.InkPrimary
-import com.mee.moneytracker.ui.theme.LedgerRed
-import com.mee.moneytracker.ui.theme.PaperBackground
-import com.mee.moneytracker.ui.theme.DeepForestIncome
+import com.me.moneytracker.data.Category
+import com.me.moneytracker.data.Expense
+import com.me.moneytracker.data.ExpenseWithCategory
+import com.me.moneytracker.ui.theme.AmountLarge
+import com.me.moneytracker.ui.theme.AmountMedium
+import com.me.moneytracker.ui.theme.BrassDivider
+import com.me.moneytracker.ui.theme.CardSurface
+import com.me.moneytracker.ui.theme.Fraunces
+import com.me.moneytracker.ui.theme.IBMPlexMono
+import com.me.moneytracker.ui.theme.IBMPlexSans
+import com.me.moneytracker.ui.theme.InkPrimary
+import com.me.moneytracker.ui.theme.LedgerRed
+import com.me.moneytracker.ui.theme.PaperBackground
+import com.me.moneytracker.ui.theme.DeepForestIncome
 import org.koin.androidx.compose.koinViewModel
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -472,7 +472,7 @@ fun HomeContent(
             exit = slideOutVertically(targetOffsetY = { it }) + fadeOut(),
             modifier = Modifier.align(Alignment.BottomCenter)
         ) {
-            com.mee.moneytracker.ui.components.FloatingNavBar(
+            com.me.moneytracker.ui.components.FloatingNavBar(
                 currentRoute = "home",
                 onNavigate = { route ->
                     when (route) {
@@ -663,7 +663,7 @@ fun HomeScreenPreview() {
             category = mockCategories[2]
         )
     )
-    com.mee.moneytracker.ui.theme.LedgerTheme {
+    com.me.moneytracker.ui.theme.LedgerTheme {
         HomeContent(
             expenses = mockExpenses,
             todayTotalIncome = 5000.0,

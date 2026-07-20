@@ -1,4 +1,4 @@
-package com.mee.moneytracker.ui.addexpense
+package com.me.moneytracker.ui.addexpense
 
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
@@ -64,18 +64,18 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.mee.moneytracker.data.Category
-import com.mee.moneytracker.ui.home.ruledBackground
-import com.mee.moneytracker.ui.theme.AmountLarge
-import com.mee.moneytracker.ui.theme.BrassDivider
-import com.mee.moneytracker.ui.theme.CardSurface
-import com.mee.moneytracker.ui.theme.Fraunces
-import com.mee.moneytracker.ui.theme.IBMPlexMono
-import com.mee.moneytracker.ui.theme.IBMPlexSans
-import com.mee.moneytracker.ui.theme.InkPrimary
-import com.mee.moneytracker.ui.theme.LedgerRed
-import com.mee.moneytracker.ui.theme.PaperBackground
-import com.mee.moneytracker.ui.theme.DeepForestIncome
+import com.me.moneytracker.data.Category
+import com.me.moneytracker.ui.home.ruledBackground
+import com.me.moneytracker.ui.theme.AmountLarge
+import com.me.moneytracker.ui.theme.BrassDivider
+import com.me.moneytracker.ui.theme.CardSurface
+import com.me.moneytracker.ui.theme.Fraunces
+import com.me.moneytracker.ui.theme.IBMPlexMono
+import com.me.moneytracker.ui.theme.IBMPlexSans
+import com.me.moneytracker.ui.theme.InkPrimary
+import com.me.moneytracker.ui.theme.LedgerRed
+import com.me.moneytracker.ui.theme.PaperBackground
+import com.me.moneytracker.ui.theme.DeepForestIncome
 import org.koin.androidx.compose.koinViewModel
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -621,7 +621,7 @@ fun AddExpenseScreenPreview() {
         Category(id = 3, name = "Salary", isDefault = true, isIncome = true),
         Category(id = 4, name = "Business", isDefault = true, isIncome = true)
     )
-    com.mee.moneytracker.ui.theme.LedgerTheme {
+    com.me.moneytracker.ui.theme.LedgerTheme {
         AddExpenseContent(
             expenseCategories = mockExpenseCategories,
             incomeCategories = mockIncomeCategories,

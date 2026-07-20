@@ -1,4 +1,4 @@
-package com.mee.moneytracker.ui.theme
+package com.me.moneytracker.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
@@ -6,7 +6,7 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
-import com.mee.moneytracker.R
+import com.me.moneytracker.R
 
 val Fraunces = FontFamily(
     Font(R.font.fraunces_regular, FontWeight.Normal),

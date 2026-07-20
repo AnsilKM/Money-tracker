@@ -1,4 +1,4 @@
-package com.mee.moneytracker.data
+package com.me.moneytracker.data
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

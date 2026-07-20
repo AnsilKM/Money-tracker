@@ -1,4 +1,4 @@
-package com.mee.moneytracker.ui.credit
+package com.me.moneytracker.ui.credit
 
 import android.app.DatePickerDialog
 import androidx.compose.foundation.background
@@ -64,21 +64,21 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.mee.moneytracker.data.Category
-import com.mee.moneytracker.data.CreditAccount
-import com.mee.moneytracker.data.CreditTransaction
-import com.mee.moneytracker.ui.credit.components.ConfirmDeleteAccountDialog
-import com.mee.moneytracker.ui.home.ruledBackground
-import com.mee.moneytracker.ui.theme.AmountMedium
-import com.mee.moneytracker.ui.theme.BrassDivider
-import com.mee.moneytracker.ui.theme.CardSurface
-import com.mee.moneytracker.ui.theme.DeepForestIncome
-import com.mee.moneytracker.ui.theme.Fraunces
-import com.mee.moneytracker.ui.theme.IBMPlexMono
-import com.mee.moneytracker.ui.theme.IBMPlexSans
-import com.mee.moneytracker.ui.theme.InkPrimary
-import com.mee.moneytracker.ui.theme.LedgerRed
-import com.mee.moneytracker.ui.theme.PaperBackground
+import com.me.moneytracker.data.Category
+import com.me.moneytracker.data.CreditAccount
+import com.me.moneytracker.data.CreditTransaction
+import com.me.moneytracker.ui.credit.components.ConfirmDeleteAccountDialog
+import com.me.moneytracker.ui.home.ruledBackground
+import com.me.moneytracker.ui.theme.AmountMedium
+import com.me.moneytracker.ui.theme.BrassDivider
+import com.me.moneytracker.ui.theme.CardSurface
+import com.me.moneytracker.ui.theme.DeepForestIncome
+import com.me.moneytracker.ui.theme.Fraunces
+import com.me.moneytracker.ui.theme.IBMPlexMono
+import com.me.moneytracker.ui.theme.IBMPlexSans
+import com.me.moneytracker.ui.theme.InkPrimary
+import com.me.moneytracker.ui.theme.LedgerRed
+import com.me.moneytracker.ui.theme.PaperBackground
 import org.koin.androidx.compose.koinViewModel
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -1175,7 +1175,7 @@ fun getBillingCycleRange(billDay: Int, offset: Int): Pair<Calendar, Calendar> {
 @androidx.compose.ui.tooling.preview.Preview(showBackground = true)
 @Composable
 fun CreditDetailsScreenPreview() {
-    com.mee.moneytracker.ui.theme.LedgerTheme {
+    com.me.moneytracker.ui.theme.LedgerTheme {
         CreditDetailsScreen(
             accountId = 1L,
             onNavigateBack = {}

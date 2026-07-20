@@ -1,4 +1,4 @@
-package com.mee.moneytracker.ui.credit.components
+package com.me.moneytracker.ui.credit.components
 
 import android.app.DatePickerDialog
 import androidx.compose.foundation.background
@@ -46,15 +46,15 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.mee.moneytracker.data.CreditAccount
-import com.mee.moneytracker.ui.theme.BrassDivider
-import com.mee.moneytracker.ui.theme.CardSurface
-import com.mee.moneytracker.ui.theme.DeepForestIncome
-import com.mee.moneytracker.ui.theme.Fraunces
-import com.mee.moneytracker.ui.theme.IBMPlexMono
-import com.mee.moneytracker.ui.theme.IBMPlexSans
-import com.mee.moneytracker.ui.theme.InkPrimary
-import com.mee.moneytracker.ui.theme.LedgerRed
+import com.me.moneytracker.data.CreditAccount
+import com.me.moneytracker.ui.theme.BrassDivider
+import com.me.moneytracker.ui.theme.CardSurface
+import com.me.moneytracker.ui.theme.DeepForestIncome
+import com.me.moneytracker.ui.theme.Fraunces
+import com.me.moneytracker.ui.theme.IBMPlexMono
+import com.me.moneytracker.ui.theme.IBMPlexSans
+import com.me.moneytracker.ui.theme.InkPrimary
+import com.me.moneytracker.ui.theme.LedgerRed
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date

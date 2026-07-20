@@ -1,4 +1,4 @@
-package com.mee.moneytracker.ui.credit
+package com.me.moneytracker.ui.credit
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -31,10 +31,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.mee.moneytracker.data.CreditAccount
-import com.mee.moneytracker.ui.credit.components.*
-import com.mee.moneytracker.ui.home.ruledBackground
-import com.mee.moneytracker.ui.theme.*
+import com.me.moneytracker.data.CreditAccount
+import com.me.moneytracker.ui.credit.components.*
+import com.me.moneytracker.ui.home.ruledBackground
+import com.me.moneytracker.ui.theme.*
 import org.koin.androidx.compose.koinViewModel
 import java.util.Locale
 import java.util.Calendar
@@ -593,7 +593,7 @@ fun CreditListScreen(
                 exit = slideOutVertically(targetOffsetY = { it }) + fadeOut(),
                 modifier = Modifier.align(Alignment.BottomCenter)
             ) {
-                com.mee.moneytracker.ui.components.FloatingNavBar(
+                com.me.moneytracker.ui.components.FloatingNavBar(
                     currentRoute = "credit_list",
                     onNavigate = { route ->
                         when (route) {

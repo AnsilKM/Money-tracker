@@ -1,10 +1,10 @@
-package com.mee.moneytracker
+package com.me.moneytracker
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import com.mee.moneytracker.ui.theme.LedgerTheme
+import com.me.moneytracker.ui.theme.LedgerTheme
 import org.koin.compose.KoinContext
 
 class MainActivity : ComponentActivity() {
@@ -23,7 +23,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             LedgerTheme {
                 KoinContext {
-                    com.mee.moneytracker.navigation.AppNavigation()
+                    com.me.moneytracker.navigation.AppNavigation()
                 }
             }
         }

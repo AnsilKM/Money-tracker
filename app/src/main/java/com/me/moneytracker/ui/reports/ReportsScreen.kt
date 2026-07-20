@@ -1,4 +1,4 @@
-package com.mee.moneytracker.ui.reports
+package com.me.moneytracker.ui.reports
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -54,18 +54,18 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.mee.moneytracker.ui.home.ruledBackground
-import com.mee.moneytracker.ui.theme.AmountLarge
-import com.mee.moneytracker.ui.theme.AmountMedium
-import com.mee.moneytracker.ui.theme.BrassDivider
-import com.mee.moneytracker.ui.theme.CardSurface
-import com.mee.moneytracker.ui.theme.Fraunces
-import com.mee.moneytracker.ui.theme.IBMPlexMono
-import com.mee.moneytracker.ui.theme.IBMPlexSans
-import com.mee.moneytracker.ui.theme.InkPrimary
-import com.mee.moneytracker.ui.theme.LedgerRed
-import com.mee.moneytracker.ui.theme.DeepForestIncome
-import com.mee.moneytracker.ui.theme.PaperBackground
+import com.me.moneytracker.ui.home.ruledBackground
+import com.me.moneytracker.ui.theme.AmountLarge
+import com.me.moneytracker.ui.theme.AmountMedium
+import com.me.moneytracker.ui.theme.BrassDivider
+import com.me.moneytracker.ui.theme.CardSurface
+import com.me.moneytracker.ui.theme.Fraunces
+import com.me.moneytracker.ui.theme.IBMPlexMono
+import com.me.moneytracker.ui.theme.IBMPlexSans
+import com.me.moneytracker.ui.theme.InkPrimary
+import com.me.moneytracker.ui.theme.LedgerRed
+import com.me.moneytracker.ui.theme.DeepForestIncome
+import com.me.moneytracker.ui.theme.PaperBackground
 import androidx.compose.foundation.Canvas
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
@@ -73,15 +73,15 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalDensity
 import org.koin.androidx.compose.koinViewModel
 import java.util.Locale
-import com.mee.moneytracker.data.ExpenseWithCategory
+import com.me.moneytracker.data.ExpenseWithCategory
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Calendar
 import android.app.DatePickerDialog
-import android.os.Build
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.TextButton
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 
@@ -156,8 +156,8 @@ fun ReportsContent(
 
     val lazyListState = rememberLazyListState()
     var isNavBarVisible by remember { mutableStateOf(true) }
-    var prevIndex by remember { mutableStateOf(0) }
-    var prevOffset by remember { mutableStateOf(0) }
+    var prevIndex by remember { mutableIntStateOf(0) }
+    var prevOffset by remember { mutableIntStateOf(0) }
 
     LaunchedEffect(lazyListState.firstVisibleItemIndex, lazyListState.firstVisibleItemScrollOffset) {
         val currentIndex = lazyListState.firstVisibleItemIndex
@@ -329,9 +329,7 @@ fun ReportsContent(
                                         currentDate.get(Calendar.MONTH),
                                         currentDate.get(Calendar.DAY_OF_MONTH)
                                     )
-                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                                        dialog.datePicker.maxDate = System.currentTimeMillis()
-                                    }
+                                    dialog.datePicker.maxDate = System.currentTimeMillis()
                                     dialog.show()
                                 }
                             }
@@ -533,7 +531,7 @@ fun ReportsContent(
             exit = slideOutVertically(targetOffsetY = { it }) + fadeOut(),
             modifier = Modifier.align(Alignment.BottomCenter)
         ) {
-            com.mee.moneytracker.ui.components.FloatingNavBar(
+            com.me.moneytracker.ui.components.FloatingNavBar(
                 currentRoute = "reports",
                 onNavigate = { route ->
                     when (route) {
@@ -935,8 +933,8 @@ fun MonthYearPickerDialog(
     onDismissRequest: () -> Unit,
     onDateSelected: (year: Int, month: Int) -> Unit
 ) {
-    var selectedYear by remember { mutableStateOf(initialDate.get(Calendar.YEAR)) }
-    var selectedMonth by remember { mutableStateOf(initialDate.get(Calendar.MONTH)) } // 0-indexed
+    var selectedYear by remember { mutableIntStateOf(initialDate.get(Calendar.YEAR)) }
+    var selectedMonth by remember { mutableIntStateOf(initialDate.get(Calendar.MONTH)) } // 0-indexed
     
     val currentCal = Calendar.getInstance()
     val currentYear = currentCal.get(Calendar.YEAR)
@@ -1063,7 +1061,7 @@ fun ReportsScreenPreview() {
         CategoryBreakdown("Bills", 2500.0, 29.4f),
         CategoryBreakdown("Transport", 1500.0, 17.6f)
     )
-    com.mee.moneytracker.ui.theme.LedgerTheme {
+    com.me.moneytracker.ui.theme.LedgerTheme {
         ReportsContent(
             tabIndex = 0,
             dateLabel = "14 July 2026",
